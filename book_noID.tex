@@ -87,7 +87,9 @@
 \end{abstract}
 %----
 \newpage
+
 \tableofcontents
+
 \newpage
 \section{Introduction}
 \indent \textbf{Cyber} is a prefix used in a growing number of terms that describe new actions that are being made possible by the usage of computers and networks. As the evolution of modern computers and networks progressed, a cat-and-mouse game evolved simultaneously, and continues to this day. This cat-and-mouse game is cyber warfare, and is caused by the challenges in information security, as a result of various cyber threats that exist.
@@ -233,7 +235,14 @@ Notice that streams are interesting to us in the security aspect because they ca
 
 \indent In our project we will create an ensemble machine that will focus on three different areas of a PDF file. These three areas are: 1) The image of the first page of the PDF file, 2) The text of the first page of the PDF file, and 3) The features of the PDF file. Although the third area has already been quite researched, the two first areas have not yet been researched, therefore specific researches about it haven't been found. This means we will enter a new field of research, hoping to reach some progress in finding an efficient and effective way to identify these kinds of attacks. 
 
-\section{PDF Based Attack Techniques [5]}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.00\textwidth]{machines}
+    \\
+    \caption{our schema for project}
+    \label{fig:blur}
+\end{figure}
+\section[PDF Based Attack Techniques]{PDF Based Attack Techniques \cite{BGU2014malicious}}
 \indent	It is known that there are many types of attacks that are based on PDF files. This is a subject that has been researched thoroughly in the past decade. Using a PDF file as an attack vector can be very simple. As mentioned above, AVs do not always have the best solution to deal with malicious PDF files, as they base their signatures on a file’s MD5 or hash, and even a small change in the file can change the MD5 or hash, and the vulnerabilities can continue to be used.
 
 \indent There are many ways that PDF files can be used as an attack vector. Readers have many vulnerabilities that ease the use of PDF files, and many of the characteristics of the PDF file make it a great attack vector. In this section we will present the existing approaches of utilizing PDF files in order to conduct an attack \cite{BGU2014malicious}. Social engineering takes a big part of most PDF based attacks, as the user-visible content of the PDF file can exist only for social engineering causes, while the not-user-visible content of the file can be extremely malicious.
@@ -299,9 +308,9 @@ Notice that streams are interesting to us in the security aspect because they ca
 \indent In this phase, we wanted to create an image-based classification machine. This machine should classify a PDF file only by the preview of the file. The idea of classifying a PDF file by image hasn't appeared in any research we have read, thus making our work a first in some sort of way.
 
 \subsection{Creating the vector}
-\indent When we started researching for the classification of a PDF file by image and saw that no research has been made about it, we looked at much simpler examples of image classification. In the article by Adrian Rosebrock \cite{HistogramImage} the best strategy presented to work with a picture is using a histogram, and not working with the pixels of the picture. The histogram made much more sense in our case, since relating to the picture by pixels did not give us information we could work with.
+\indent When we started researching for the classification of a PDF file by image and saw that no research has been made about it, we looked at much simpler examples of image classification. According to an article by Adrian Rosebrock \cite{HistogramImage}, the best strategy presented to work with a picture is using a histogram, and not working with the pixels of the picture. The histogram made much more sense in our case, since relating to the picture by pixels did not give us information we could work with.
 
-\indent Whilst working on this machine, following a tip from our advisor, we tried to find meaningful characteristics that will indicate if a PDF is malicious or not. While searching, we found a characteristic we have seen in many files, and chose to refer to the blurriness of the image. We have seen many malicious samples that contained blurred images, with a message to the user that they should download some upgrade in order to see the document. In order to calculate the blurriness of the image, we used the Laplacian method with an existing library in python (‘cv2’). This method returns a numeric value – if that value is under 150, that means that the image is blurry. The Figure \ref{fig:blur} shows an example of a blurry PDF document and a non-blurry PDF document and their numeric values of the Laplacian method calculation (7.02 opposed to 4837.3).
+\indent Whilst working on this machine, following a tip from our advisor, we tried to find meaningful characteristics that will indicate if a PDF is malicious or not. While searching, we found a characteristic we have seen in many files, and chose to refer to the blurriness of the image. We have seen many malicious samples that contained blurred images, with a message to the user that they should download some update in order to see the document. In order to calculate the blurriness of the image, we used the Laplacian method with an existing library in python (‘cv2’). This method returns a numeric value – if that value is under 150, that means that the image is blurry. Figure \ref{fig:blur} shows an example of a blurry PDF document and a non-blurry PDF document and their numeric values calculated by the Laplacian method calculation (7.02 opposed to 4837.3).
 
 \begin{figure}[h]
     \centering
@@ -311,7 +320,7 @@ Notice that streams are interesting to us in the security aspect because they ca
     \label{fig:blur}
 \end{figure}
 
-\indent In this stage, we had all the information we needed to construct the vector for the images, that the machine will receive as its input. We decided that the overall size of the image vector is 513. The 512 first indexes relate to the picture's histogram, in other words, to the colors in the image (RGB – 8*8*8 = 512). The last index of the vector holds the numeric value that is returned from the Laplacian method calculation of the blurriness of the image.
+\indent In this stage, we had all the information we needed to construct the vector for the images, that the machine will receive as it's input. We decided that the overall size of the image vector is 513. The 512 first indexes relate to the picture's histogram, in other words, to the colors in the image (RGB – 8*8*8 = 512). The last index of the vector holds the numeric value that is returned from the Laplacian method calculation of the blurriness of the image.
 
 \subsection{Implementing the machine}
 \indent When we reached the phase of implementing the image-based classification machine, our advisors had recommended us to use K-Means-Clustering, a popular method for cluster analysis. K-Means-Clustering partitions its observations to a numeric k clusters, each observation belongs to the cluster with the nearest mean.
@@ -321,7 +330,7 @@ Notice that streams are interesting to us in the security aspect because they ca
 \indent	We chose KNN because it is a simple example of a machine learning algorithm that classifies the samples to one of two groups: benign or malicious. We wanted to check if a simple ‘yes-no’ classifier will give better results than a clustering algorithm we were recommended to implement. The logic of the clustering preference is that based solely on the image, there are very few cases that a ‘yes-no’ classifier can determine whether the file is malicious or not. On the other hand, a clustering algorithm can classify a sample in the same category as other similar samples, thus being a better ‘judge’ of a sample.
 
 \subsubsection{KNN Implementation}
-\indent We will start by explaining the implementation with KNN. We divided our dataset on this machine in the following way: 80\% of the samples were used for training, and 20\% for testing. At first, we had received 253 malicious samples in our dataset. We completed the dataset by adding 253 benign samples to it, so that the dataset consisted of half malicious samples and half benign samples, containing a total of 506 samples. We ran the machine with default parameters on 1, 3, 5 and 7 neighbors as the K chosen, in order to find the best result.
+\indent We will start by explaining the implementations with KNN. We divided our dataset on this machine in the following way: 80\% of the samples were used for training, and 20\% for testing. At first, we had received 253 malicious samples in our dataset. We completed the dataset by adding 253 benign samples to it, so that the dataset consisted of half malicious samples and half benign samples, containing a total of 506 samples. We ran the machine with default parameters on 1, 3, 5 and 7 neighbors as the K chosen, in order to find the best result.
 
 \begin{table}[htb]
 \centering
@@ -363,9 +372,9 @@ K & Results\\
 \indent The first step we made regarding this phase, as part of the first phase, was to extract the text from the first page of the PDF file. In some cases, we have noticed that there was an exaggerated amount of characters, or no characters at all, that were read from a single page of the PDF file. The reason for this was that there can be some stream that represents an image or some graphical content in the file, causing us to read the stream as a whole, and that does not give us the actual content of the file. In these cases, we have decided to deal with this by extracting the text from the image of the first page of the file. This was made as explained in the first phase.
 
 \subsection{Creating the vector}
-\indent The next step is defining the vector that this machine will receive as the input for every sample. We have seen many articles about creating a text vector, and normally this was made by using word embeddings. Word embedding is a collective name for a set of language modeling and feature learning techniques in natural language processing. In word embeddings, words or phrases from the vocabulary are mapped to vectors of real numbers. We have decided to try in our project three different word embeddings and compare between them. 
+\indent The next step is defining the vector that this machine will receive as the input for every sample. We have seen many articles about creating a text vector, and normally this was made by using word embeddings. Word embedding is a collective name for a set of language modeling and feature learning techniques in natural language processing. In word embedding, words or phrases from the vocabulary are mapped to vectors of real numbers. We have decided to try three different word embedding techniques in our project and compare between them. 
 
-\indent The word embeddings we used were ‘doc2vec’, ‘word2vec’, and ‘TF-IDF’.  ‘Word2vec’ uses dictionaries that can be given to it. After some research we have decided to use ‘GoogleNews-vectors-negative300-SLIM.bin.gz’, that uses only words – in order to meet the memory limitations we had. We fixed the size of the vector to 300.
+\indent The word embedding techniques we used were ‘doc2vec’, ‘word2vec’, and ‘TF-IDF’.  ‘Word2vec’ uses dictionaries that can be given to it. After some research we have decided to use ‘GoogleNews-vectors-negative300-SLIM.bin.gz’, that uses only words – in order to meet the memory limitations we had. We fixed the size of the vector to 300.
 
 \begin{table}[htb]
 \centering
@@ -403,7 +412,7 @@ K & Results\\
 \caption{Table of results of the different word embedding with LR.}
 \end{table}
 
-\indent As can be seen in the results above, ‘word2vec’ and ‘TF-IDF’ gave us the best results (and the same results). We decided to run machine learning algorithms on them in order to try reaching better results. We chose the following machine learning algorithms: Random Forest Classifier, K-Nearest-Neighbors, Support Vector Machine, Multilayer Perceptron, Naïve-Bayes. We ran these algorithms on a dataset of 506 samples (half malicious and half benign), and the results were as follows:
+\indent As can be seen in the results above, ‘word2vec’ and ‘TF-IDF’ gave us the best results (and the same results). We decided to run machine learning algorithms on them in order to try reaching better results. We chose the following machine learning algorithms: Random Forest Classifier, K-Nearest-Neighbors, Support Vector Machine, Multilayer Perceptron, and Naïve-Bayes. We ran these algorithms on a dataset of 506 samples (half malicious and half benign), and the results were as follows.
 
 \begin{table}[htb]
 \centering
@@ -460,9 +469,7 @@ K & Results\\
 \indent	The vector we created held 32 values, each field of the vector contained a numeric value regarding one of the features we chose. The 32 features were made up of 12 PDF tags, 10 features that characterize the URLs in the file, 7 features that characterize the JS, objects and streams in the file, and 3 features regarding the entropy of the file.
 
 \subsubsection{PDF Tags}
-\indent	In order to extract the PDF tags we were interested in, as mentioned in the project proposal chapter, there are many existing tools that were used in many researches that were available to us. In this case we have chosen to work with the ‘PDFiD’ tool by Didier Stevens \cite{1}. This tool helps us count the number of appearances of specific tags in the PDF file. 
-
-\indent The tags we have chosen were:
+\indent	In order to extract the PDF tags we were interested in, as mentioned in the project proposal chapter, there are many existing tools that were used in many researches that were available to us. In this case we have chosen to work with the ‘PDFiD’ tool by Didier Stevens \cite{1}. This tool helps us count the number of appearances of specific tags in the PDF file. The tags we have chosen were:
 
 \begin{enumerate}
 	\item \textbf{Obj} - This tag opens an object in the PDF.
@@ -470,14 +477,14 @@ K & Results\\
 	\item \textbf{Stream} - This tag opens a stream in the PDF.
 	\item \textbf{Endstream} - This tag closes a stream in the PDF.
 	\item \textbf{/ObjStm} - Counts the number of object streams. An object stream is a stream object that can contain other objects, and can therefore be used to obfuscate objects (by using different filters).
-	\item \textbf{/JS}, \textbf{/JS} - These tags indicate that the PDF document contains JavaScript. Almost all malicious PDF documents found in the wild (by Didier Stevens) contain JavaScript (to exploit a JavaScript vulnerability and/or to execute a heap spray). JavaScript can be found in PDFs without malicious intent.
+	\item \textbf{/JS}, \textbf{/JavaScript} - These tags indicate that the PDF document contains JavaScript. Almost all malicious PDF documents found in the wild (by Didier Stevens) contain JavaScript (to exploit a JavaScript vulnerability and/or to execute a heap spray). JavaScript can also be found in PDFs without malicious intent.
 	\item \textbf{/AA}, \textbf{/OpenAction} - These tags indicate an automatic action to be performed when the file is viewed. All malicious PDF documents with JavaScript seen in the wild (by Didier Stevens) had an automatic action to launch the JavaScript without user interaction. The combination of automatic action and JavaScript makes a PDF document very suspicious.
 	\item \textbf{/RichMedia} - This tag can imply presence of flash in the file.
 	\item \textbf{/Launch} - This tag counts launch actions in the file.
 	\item \textbf{/AcroForm} - This tag is defined if a document contains form fields, and is true if it uses XML Forms Architecture.
 \end{enumerate}
 
-\indent The first four features were chosen specifically in order to find malformations in the PDF files format. As we have seen in previous researches, many of them have specifically liked malformations in the files to malicious intents.
+\indent The first four features were chosen specifically in order to find malformations in the PDF files format. As we have seen in previous researches, many of them have specifically linked malformations in the files to malicious intents.
 
 \subsubsection{URLs}
 \indent	In order to extract the URL features we were interested in, we wrote a simple python parser that extracted what we were looking for. Due to the specific features and the format of URLs, that was not too hard to do. The features we chose are:
@@ -488,21 +495,22 @@ K & Results\\
 	\item Number of URLs with the expression "File://" .
 	\item Longest length of string after the second slash in the URL.
 	\item Number of URLs that contain another URL in them.
-	\item Number of URLs that contain encoded characters in the hostname. (Example: http://www.\%63\%6c\%69\%66\%74.com)
+	\item Number of URLs that contain encoded characters in the hostname. 
+	\newline(Example: http://www.\%63\%6c\%69\%66\%74.com)
 	\item Number of URLs that contain IPs in them.
 	\item Number of URLs that contain suspicious expressions (such as: download, php, target, loader, login, =, ?, \&, +).
 	\item Number of URLs that contain unusual ports after the colon (':').
 \end{enumerate}
 
 \subsubsection{JavaScript, Objects \& Streams}
-\indent	In order to extract the JS from the files we have used an existing tool called ‘PeePDF’. This tool extracts all the JavaScript from a PDF file. Using this tool we extracted all the JavaScript from each sample and searched in it the features we were interested in. The JavaScript was extracted from the objects and streams of the files. 
+\indent	In order to extract the JS from the files we have used an existing tool called ‘PeePDF’. We used this tool in order to extract all the JavaScript code found in each sample and searched in the code extracted features we were interested in. The JavaScript was extracted from the objects and streams of the files. 
 
 \indent	Another tool we used was called ‘JAST’. This tool classifies whether a string has JavaScript in it or not, and knows how to recognize obfuscated JavaScript code. This helped us extract an important feature about JavaScript in the PDF file.
 
 \indent	The features we chose are:
 
 \begin{enumerate}
-	\item Number of objects with JavaScript in them.
+	\item Number of objects with JavaScript in them in the PDF file.
 	\item Number of lines with JavaScript code in the PDF file.
 	\item Kind of JavaScript in the file: no JS, regular JS, obfuscated JS.
 	\item Four features for special expressions:
@@ -526,7 +534,7 @@ K & Results\\
 \indent	All the features we have chosen were based on decisions we have made and things we have thought were interesting and important, tips from our advisors and previous researches and articles. All the tools that are mentioned in this stage are introduced in the 'existing tools' section of this work.
 
 \subsection{Implementing the machine}
-\indent	At first, we ran a few different machine learning algorithms on our 32-sized vector to fins the algorithm that will give us the best results. Similar to the second machine, we chose the following algorithms: Logistic Regression, K-Nearest-Neighbors, Multilayer Perceptron, Random Forest Classifier and Support Vector Machine. We ran the machine twice, on 506 samples and on 838 samples, both datasets were made of half malicious samples and half benign samples. We split the two datasets the same way: 80\% for training and 20\% for testing.
+\indent	At first, we ran a few different machine learning algorithms on our 32-sized vector to find the algorithm that will give us the best results. Similar to the second machine, we chose the following algorithms: Logistic Regression, K-Nearest-Neighbors, Multilayer Perceptron, Random Forest Classifier and Support Vector Machine. We ran the machine twice, on 506 samples and on 838 samples, both datasets were made of half malicious samples and half benign samples. We split the two datasets the same way: 80\% for training and 20\% for testing.
 
 \subsection{Results}
 \begin{table}[htb]
@@ -556,13 +564,14 @@ K & Results\\
 \indent The aim of this final phase was to create the fourth machine, an ensemble machine that will provide us with the final classification of a PDF file. This machine will classify the file based on all three classifications made by the previous machines. 
 
 \subsection{Creating the vector}
-\indent To implement that, we decided that there are a few combinations that are worth trying and comparing, before deciding what would be the best strategy for this machine. These strategies were regarding the vector the ensemble machine would receive as its input. The vector of this machine could be assembled in quite a few different ways, as follows:
+\label{sec:vector5phase}
+\indent To implement that, we decided that there are a few combinations that are worth trying and comparing, before deciding what would be the best strategy for this machine. These strategies were regarding the vector that the ensemble machine would receive as its input. The vector of this machine could be assembled in quite a few different ways, as follows:
 
 \renewcommand{\labelitemi}{$\textendash$}
 \begin{itemize}
-    \item  The vector would contain only 3 fields with the decisions of the three previous machines.
-    \item The vector would contain all the vectors from previous stages (513 fields for the image, 300 fields for text, 32 fields for features = 845 fields overall).
-	\item The vector would contain part of the vectors from previous stages and part of the classifications of previous stages, in different combinations.
+    \item  The vector could contain only 3 fields with the decisions of all three previous machines.
+    \item The vector could contain all the vectors from previous stages (513 fields for the image, 300 fields for text, 32 fields for features = 845 fields overall).
+	\item The vector could contain part of the vectors from previous stages and part of the classifications of previous stages, in different combinations.
 \end{itemize}
 
 \subsection{Implementing the machine}
@@ -595,7 +604,7 @@ K & Results\\
 \indent As the table above shows, only AdaBoost regressor in the fourth machine does not use the blur of the image. Moreover, only the RF classifier and RF regressor use 90\%-100\% of the text vector. The same can be said about the feature vector.
 
 \subsection{Initial Results}
-\indent	In this stage of the project we chose all sorts of possible vectors and all six machine learning algorithms mentioned above, and ran the machine in order to compare the results and find the best combination.  We have tried the following vectors: 
+\indent	In this stage of the project we chose all sorts of possible vectors and all six machine learning algorithms mentioned above, and ran the ensemble  machine in order to compare the results and find the best combination.  We have tried the following vectors: 
 
 \renewcommand{\labelitemi}{$\textendash$}
 \begin{itemize}
@@ -618,8 +627,6 @@ K & Results\\
 	\hline
 	\centering{\textbf{Vector of machine results} \\ (KNN + SVM + 32 features)} & \centering{92.26 \%} & \centering{90.48 \%} & \centering{94.05 \%} & 	\centering{94.05 \%} & \centering{92.26 \%} & \centering{94.05 \%}\tabularnewline
 	\hline
-	\centering{\textbf{Vector of machine results} \\ (KNN + SVM + 28 features)} & \centering{92.26 \%} & \centering{91.07 \%} & \centering{92.86 \%} & 	\centering{94.64 \%} & \centering{94.64 \%} & \centering{94.64 \%}\tabularnewline
-	\hline
 	\multicolumn{7}{r}{\textit{Continued on next page}} \\
 \end{longtable}
 \end{table}
@@ -630,6 +637,8 @@ K & Results\\
 \begin{table}[htb]
 \centering
 \begin{longtable}{|M{1.5cm}|M{1.5cm}|M{1.5cm}|M{1.5cm}|M{1.5cm}|M{1.5cm}|M{1.5cm}|}
+	\hline
+	\centering{\textbf{Vector of machine results} \\ (KNN + SVM + 28 features)} & \centering{92.26 \%} & \centering{91.07 \%} & \centering{92.86 \%} & 	\centering{94.64 \%} & \centering{94.64 \%} & \centering{94.64 \%}\tabularnewline
 	\hline
 	\centering{\textbf{Vector of machine results} \\ (KMC + SVM + 32 features)} & \centering{92.26 \%} & \centering{93.45 \%} & \centering{93.45 \%} & 	\centering{93.45 \%} & \centering{94.05 \%} & \centering{93.45 \%}\tabularnewline
 	\hline
@@ -679,12 +688,12 @@ K & Results\\
 
 \indent From the results in the above table \ref{tab:First}, it can be seen clearly that the text feature in the vector of machine results is the most significant one in feature importance in most cases. That result awed us, as it was not expected. The text and image machines are expected to be less significant since they judge the visible content of the PDF file only. As mentioned in the first and second phase chapters, visible content in the PDF does not necessarily mean that there is not more content in the file, such as JS code and all that was mentioned in phase four.
 
-\indent In order to improve our results in the fourth machine, we needed to go back and rethink the three previous machines. At first, when we built the first three machines, we ran them 506 samples only. When we ran the machines again on 838 samples – we saw different results (shown in the first, second and third phase chapters). For example, with 506 samples we saw that for the first machine (image), the best result we received was using KNN, but with 838 samples we got the best results using KMC. Moreover, with 506 samples we saw that for the second machine (text), the best result we received was using SVM, but with 838 samples we got the best results using LR.
+\indent In order to improve our results in the fourth machine, we needed to go back and rethink our strategy for all three previous machines. At first, when we built the first three machines, we ran them on a dataset of 506 samples. When we ran the machines again on 838 samples – we saw different results (shown in the first, second and third phase chapters). For example, with 506 samples we saw that for the first machine (image), the best result we received was using KNN, but with 838 samples we got the best results using KMC. Moreover, with 506 samples we saw that for the second machine (text), the best result we received was using SVM, but with 838 samples we got the best results using LR.
 
-\indent In addition to that, during our project we had a meeting with another researcher that focuses on evasion attacks. From his point of view, the first and second machines of our project were very ineffective against an attacker that is acquainted with the machines (that knows that the first page is always taken for image and text extraction). Therefore, we have added to the functionality of these machines, the option of choosing a random page of the file to extract the image and text from. The random selection for the page is done twice, once for the text, and once for the image, that means that there may be two different pages chosen from the file (unless the length of the file is one page only). 
+\indent In addition to that, during our project we had a meeting with another researcher that focuses on evasion attacks. From his point of view, the first and second machines of our project were very ineffective against an attacker that is acquainted with the machines (that knows that the first page is always taken for image and text extraction). Therefore, we have added to the functionality of these machines, the option of choosing a random page of the file to extract the image and text from. The random selection for the page is done twice, once for the text, and once for the image, meaning that there may be two different pages chosen from the file (unless the length of the file is one page only). 
 
 \section{Results}
-\indent In this chapter we will present our results and explain them. We will present the final results of the ensemble machine. The vector chosen from all choices was the vector of machine results, with 3 features, each representing a result from a machine (image, text, PDF features). The chosen algorithms for the first three machines are: KMC for the image classification machine, LR for the text classification machine, and RF for the PDF features classification machine.
+\indent In this chapter we will present our results and explain them. We will present the final results of the ensemble machine. The vector chosen from all the options present in section \hyperref[sec:vector5phase]{10.1} was the vector of machine results, with 3 features, each representing a result from a machine (image, text, PDF features). The chosen algorithms for the first three machines are: KMC for the image classification machine, LR for the text classification machine, and RF for the PDF features classification machine.
 
 \begin{table}[htb]
 \centering
@@ -718,16 +727,16 @@ K & Results\\
 \caption{Table with the groups that we refer to in the final results.}
 \end{table}
 
-\indent The two datasets above for all four groups were divided in the following way:
+\indent For all four groups presented above, the two datasets were divided in the following way:
 \renewcommand{\labelitemi}{$\textendash$}
 \begin{itemize}
     \item Train first three machines: 70\% of the samples (benign and malicious respectively).
-    \item Train fourth machine: 20\% of the samples (benign and malicious respectively).
+    \item Train ensemble machine: 20\% of the samples (benign and malicious respectively).
 	\item Test: 10\% of the samples (benign and malicious respectively).
 \end{itemize}
 
 \subsection{Results of first group (838 samples; 50\% malicious / 50\% benign; first page for text \& image):}
-\indent Firstly, we present the accuracy parameters of all six algorithms on the dataset. As can be seen in the table below, here we have received the best results from the XGB classifier, with 96.43\% accuracy.  An interesting thing that can be seen in the table is that XGB regressor had more than one percent less accuracy than XGB classifier, but the precision on the benign files and the recall on the malicious files was 100\%.
+\indent Firstly, we present the accuracy parameters of all six algorithms on the dataset. As can be seen in the table below, here we have received the best results from the XGB classifier, with 96.43\% accuracy. An interesting thing that can be seen in the table is that XGB regressor had more than one percent less accuracy than XGB classifier, but the precision on the benign files and the recall on the malicious files was 100\%.
 
 \noindent\underline{Accuracy Parameters:}
 
@@ -790,16 +799,15 @@ K & Results\\
 
 \indent As can be seen above, the results of the feature importance change significantly between the algorithms. The result of the text importance is still relatively high in as to what we expect it to be in most algorithms.
 
-\indent Confusion Matrices: (Positive = Benign, Negative = Malicious) 
+\indent \underline{Confusion Matrices}: (Positive = Benign, Negative = Malicious) 
 \indent In the following table we present the confusion matrices for all algorithms, on the first group. The columns of the table are as follows:
 
-\indent The two datasets above for all four groups were divided in the following way:
 \renewcommand{\labelitemi}{$\textendash$}
 \begin{itemize}
-    \item Pos. as Pos. – Benign samples classified as benign
-    \item Pos. as Neg. - Benign samples classified as malicious
-	\item Neg. as Pos. - Malicious samples classified as benign
-	\item Neg. as Neg. - Malicious samples classified as malicious
+    \item Pos. as Pos. – Benign samples classified as benign.
+    \item Pos. as Neg. - Benign samples classified as malicious.
+	\item Neg. as Pos. - Malicious samples classified as benign.
+	\item Neg. as Neg. - Malicious samples classified as malicious.
 \end{itemize}
 
 \clearpage
@@ -811,17 +819,17 @@ K & Results\\
 	\hline
 	\centering{} & \centering{\textbf{Pos. as Pos.}} & \centering{\textbf{Neg. as Pos.}} & \centering{\textbf{Pos. as Neg.}} & \centering{\textbf{Neg. as Neg.}}\tabularnewline
 	\hline
-	\centering{\textbf{AdaBoost Classifier}} & \centering{40} & \centering{3} & \centering{1} & \centering{40}\tabularnewline
+	\centering{\textbf{AdaBoost Classifier}} & \centering{40} & \centering{1} & \centering{3} & \centering{40}\tabularnewline
 	\hline
-	\centering{\textbf{AdaBoost Regressor}} & \centering{39} & \centering{4} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{AdaBoost Regressor}} & \centering{39} & \centering{3} & \centering{4} & \centering{39}\tabularnewline
 	\hline
-	\centering{\textbf{XGB Classifier}} & \centering{42} & \centering{1} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{XGB Classifier}} & \centering{42} & \centering{2} & \centering{1} & \centering{39}\tabularnewline
 	\hline
-	\centering{\textbf{XGB Regressor}} & \centering{39} & \centering{4} & \centering{\textbf{0}} & \centering{41}\tabularnewline
+	\centering{\textbf{XGB Regressor}} & \centering{39} & \centering{\textbf{0}} & \centering{4} & \centering{41}\tabularnewline
 	\hline
-	\centering{\textbf{Random Forest Classifier}} & \centering{40} & \centering{3} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{Random Forest Classifier}} & \centering{40} & \centering{2} & \centering{3} & \centering{39}\tabularnewline
 	\hline
-	\centering{\textbf{Random Forest Regressor}} & \centering{40} & \centering{3} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{Random Forest Regressor}} & \centering{40} & \centering{2} & \centering{3} & \centering{39}\tabularnewline
 	\hline
 \end{tabular}
 % Or to place a caption below a table
@@ -829,15 +837,9 @@ K & Results\\
 Note that 84 samples are shown in the table (10\% of samples that were used for test).}
 \end{table}
 
-\indent An interesting fact from the confusion matrices is that XGB regressor has not classified even a single malicious file as benign. 
+\indent An interesting fact from the confusion matrices is that the XGB regressor has not classified even a single malicious file as benign. 
 
-\indent In addition to the results we see above, we decided to run the trained machines on the first group (machines that were trained and tested on 838 samples with the first page always selected for the extraction of image and text of the PDF file) on a dataset that contained only benign samples. This all-benign dataset contained 8,739 samples that none of them were used in the previous dataset of 838 samples. The results of running the trained machines on the all-benign dataset were as follows:
-
-\renewcommand{\labelitemi}{$\textendash$}
-\begin{itemize}
-    \item Pos. as Pos. – Benign samples classified as benign
-    \item Pos. as Neg. - Benign samples classified as malicious
-\end{itemize}
+\indent In addition to the results above, we decided to run the trained machines on the first group (machines that were trained and tested on 838 samples with the first page selected for the extraction of image and text of the PDF file) on a dataset that contained only benign samples. This all-benign dataset contained 8,739 samples that none of them were used in the previous dataset of 838 samples. The results of running the trained machines on the all-benign dataset were as follows:
 
 \clearpage
 \newpage
@@ -866,7 +868,7 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 \end{table}
 
 \subsection{Results of second group (838 samples; 50\% malicious / 50\% benign; random pages for text \& image):}
-\indent We present here the results of the second group, that the difference between this group and the previous one is the way the choice of the page for the image and text is made. Here the choice for these is made randomly.
+\indent We present here the results of the second group. The difference between this group and the previous one is the way the choice of the page for the image and text is made. Here the choice for these is made randomly.
 
 \noindent\underline{Accuracy Parameters:}
 
@@ -942,17 +944,17 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 	\hline
 	\centering{} & \centering{\textbf{Pos. as Pos.}} & \centering{\textbf{Neg. as Pos.}} & \centering{\textbf{Pos. as Neg.}} & \centering{\textbf{Neg. as Neg.}}\tabularnewline
 	\hline
-	\centering{\textbf{AdaBoost Classifier}} & \centering{37} & \centering{6} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{AdaBoost Classifier}} & \centering{37} & \centering{2} & \centering{6} & \centering{39}\tabularnewline
 	\hline
-	\centering{\textbf{AdaBoost Regressor}} & \centering{39} & \centering{4} & \centering{3} & \centering{38}\tabularnewline
+	\centering{\textbf{AdaBoost Regressor}} & \centering{39} & \centering{3} & \centering{4} & \centering{38}\tabularnewline
 	\hline
-	\centering{\textbf{XGB Classifier}} & \centering{39} & \centering{4} & \centering{3} & \centering{38}\tabularnewline
+	\centering{\textbf{XGB Classifier}} & \centering{39} & \centering{3} & \centering{4} & \centering{38}\tabularnewline
 	\hline
 	\centering{\textbf{XGB Regressor}} & \centering{40} & \centering{3} & \centering{3} & \centering{38}\tabularnewline
 	\hline
-	\centering{\textbf{Random Forest Classifier}} & \centering{39} & \centering{4} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{Random Forest Classifier}} & \centering{39} & \centering{2} & \centering{4} & \centering{39}\tabularnewline
 	\hline
-	\centering{\textbf{Random Forest Regressor}} & \centering{39} & \centering{4} & \centering{2} & \centering{39}\tabularnewline
+	\centering{\textbf{Random Forest Regressor}} & \centering{39} & \centering{2} & \centering{4} & \centering{39}\tabularnewline
 	\hline
 \end{tabular}
 % Or to place a caption below a table
@@ -961,12 +963,6 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 \end{table}
 
 \indent As on the first group, here too we ran the machines that were trained on the second group (machines that were trained and tested on 838 samples with random page selection for image and text extraction) on the all-benign dataset. The results of running the trained machines on the second group on the all-benign dataset were as follows:
-
-\renewcommand{\labelitemi}{$\textendash$}
-\begin{itemize}
-    \item Pos. as Pos. – Benign samples classified as benign
-    \item Pos. as Neg. - Benign samples classified as malicious
-\end{itemize}
 
 \begin{table}[htb]
 \centering
@@ -992,7 +988,7 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 \end{table}
 
 \subsection{Results of third group (9,577 samples; 95.625\% malicious / 4.375\% benign; first page for text \& image):}
-\indent	In this group, as written above, we reach the larger dataset, with mostly benign samples. This dataset contains all the samples we have, and the difference in the amounts of malicious and benign samples really emphasizes how the model is tested.
+\indent	In this group, as written above, we reach the larger dataset, with mostly benign samples. This dataset contains all the samples we have, and the difference in the amounts of malicious and benign samples affects the results.
 
 \noindent\underline{Accuracy Parameters:}
 
@@ -1027,7 +1023,7 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 
 \noindent\underline{Feature Importance:}
 
-\indent	The feature importance has also changed from previous groups, on the smaller dataset. Here we can see a real mix-and-match in the feature importance in the algorithms. In all algorithms except our leading algorithm in accuracy, AdaBoost classifier, have given very little importance to the image, and AdaBoost classifier has given almost all the importance to the image feature. This fact is a bit confusing.
+\indent	The feature importance has also changed from previous groups on the smaller dataset. Here we can see a real mix-and-match in the feature importance in the algorithms. All algorithms except our leading algorithm in accuracy, AdaBoost classifier, have given very little importance to the image, and AdaBoost classifier has given almost all the importance to the image feature. This fact is a bit confusing.
 
 \clearpage
 \newpage
@@ -1057,7 +1053,7 @@ Note that 84 samples are shown in the table (10\% of samples that were used for 
 
 \noindent\underline{Confusion Matrices}: (Positive = Benign, Negative = Malicious)
 
-\indent Here we present the confusion matrices for all algorithms on the third group. These results resemble the results of the accuracy parameters in the fact that all the amounts are the same for all algorithms, except for AdaBoost classifier. The difference in the accuracy parameters can be explained in the table below.
+\indent Here we present the confusion matrices for all algorithms on the third group. These results resemble the results of the accuracy parameters in the fact that all the amounts are the same for all algorithms, except for AdaBoost classifier. The difference in the accuracy parameters can be explained by the table below.
 
 \clearpage
 \newpage
@@ -1087,7 +1083,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 \end{table}
 
 \subsection{Results of fourth group (9,577 samples; 95.625\% malicious / 4.375\% benign; random pages for text \& image):}
-\indent	In this group, as written above, we reach the larger dataset, with mostly benign samples. The difference between this group and the previous one is the way the choice of the page for the image and text is made. Here the choice for these is made randomly.
+\indent	In this group, as written above, the dataset is much bigger, with mostly benign samples. The difference between this group and the previous one is the way the choice of the page for the image and text is made. Here the choice for these is made randomly.
 
 \noindent\underline{Accuracy Parameters:}
 
@@ -1125,7 +1121,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 
 \noindent\underline{Feature Importance:}
 
-\indent	The feature importance has also been affected by the random select of the pages for the image and text extraction. Most algorithms have increased the importance of the third feature, the classification of the PDF features machine.
+\indent	The feature importance has also been affected by the random selection of the pages for the image and text extraction. Most algorithms have increased the importance of the third feature - classification of the PDF features machine.
 
 \begin{table}[htb]
 \centering
@@ -1152,7 +1148,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 
 \noindent\underline{Confusion Matrices}: (Positive = Benign, Negative = Malicious)
 
-\indent Here we present the confusion matrices for all algorithms on the fourth group.
+\indent Here we present the confusion matrices for all algorithms on the fourth group. As can be seen in the table below, the confusion matrices of all six algorithms are similar.
 
 \begin{table}[htb]
 \centering
@@ -1179,7 +1175,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 \end{table}
 
 \subsection{Comparing between results from third and fourth groups:}
-\indent We now show the differences between the performances of the model between the third and fourth groups of our datasets. As can be seen below, there is a slight decrease when the page choice for the extraction of the image and text is done randomly. Each of these groups has its own advantage. The third group returns slightly better results, but the fourth group handles evasion attacks in the image and text machines. 
+\indent In this section we will show the differences between the performances of the models of the third and fourth groups on the second dataset. As can be seen below, there is a slight decrease when the page choice for the extraction of the image and text is done randomly. Each of these groups (third and fourth) has its own advantage. The third group returns slightly better results, but the fourth group handles evasion attacks in the image and text machines. 
 
 \begin{table}[htb]
 \centering
@@ -1199,11 +1195,11 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 \indent There are plenty of researches that have dealt with evasion attacks in the PDF feature area, therefore we do not focus on this in our work.
 
 \subsection{Comparing our results to results from previous work:}
-\indent In our project we have focused on three areas of interest in a PDF file: image, text and JavaScript. Most of the previous researches we have read had focused on one main area of interest. These vary from static lexical analysis, JavaScript analysis, PDF features and more. These previous researches have either supplied a tool that identifies malicious files, or a classification model using machine learning. 
+\indent In our project we have focused on three areas of interest in a PDF file: image, text and PDF features. Most of the previous researches we have read have focused on one main area of interest. These vary from static lexical analysis, JavaScript analysis, PDF features and more. These previous researches have either supplied a tool that identifies malicious files, or a classification model using machine learning. 
 
-\indent In this section we will compare the results we received from our ensemble machine to results from two previous researches. One research focuses on the PDF feature extraction and machine learning techniques on the vector extracted. This resembles the third machine we have created in our project. Another research focused on the structural properties of PDF files (learning the difference between the structural trees of malicious and benign files). It delves into the relations between the objects of the file in its structural tree. 
+\indent In this section we will compare the results we received from our ensemble machine to results from two previous researches. The first research focuses on the PDF feature extraction and machine learning techniques on the vector extracted. This resembles the third machine we have created in our project. The second research focused on the structural properties of PDF files (learning the difference between the structural trees of malicious and benign files). It delves into the relations between the objects of the file in its structural tree. 
 
-\indent In Torres and De Los Santos research that was made in 2018 \cite{torres2018malicious}, they have combined one set of features and three ML algorithms to classify if a PDF is malicious or benign. The features they chose were not presented, but they explained that they were only related to PDF tags (such as /JS,  etc.). The machine learning algorithms they used were SVM, RF, and MLP. Their dataset contained 1,712 samples – half of the samples were malicious and half benign. They divided their dataset in the following way: 995 samples (~58\%) for training, 217 samples for validation (~12\%), 500 samples (30\%) for testing. Their results are presented in the table below:
+\indent In Torres and De Los Santos research that was made in 2018 \cite{torres2018malicious}, they have combined one set of features and three ML algorithms to classify if a PDF is malicious or benign. The features they chose were not presented, but they explained that they were only related to PDF tags (such as /JS,  etc.). The machine learning algorithms they used were SVM, RF, and MLP. Their dataset contained 1,712 samples – half of the samples were malicious and half benign. They divided their dataset in the following way: 995 samples (about 58\%) for training, 217 samples for validation (about 12\%), 500 samples (30\%) for testing. Their results are presented in the table below:
 
 \begin{table}[htb]
 \centering
@@ -1274,7 +1270,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 \subsection{Conclusion}
 \indent The aim of our project was to create an ensemble machine that will serve as a classifier for PDF files. This ensemble machine focuses on three different areas of the PDF file: image, text and file features. The first machine uses a clustering algorithm on a vector of the image histogram and blur, extracted from the first page of the file. The second machine uses ‘TFIDF’ as the word embedding and logistic regression as the machine learning algorithm to classify the file by the text extracted from the first page of the file. The third machine uses a vector of features extracted from the whole file, and random forest as the machine learning algorithm to classify the file by its features.
 
-\indent During the different phases of our work, while working on each machine, we had tried different approaches for the way of building the vectors, and different deep learning and machine learning algorithms. In addition to that, during our work we met with our advisors and another researcher and talked about different ways that an attacker can evade our ensemble machine. We built an algorithm that instead of always choosing the first page for our two first machines, it chooses random pages of the file for that. 
+\indent During the different phases of our work, while working on each machine, we had tried different approaches for the way of building the vectors, and different deep learning and machine learning algorithms. In addition to that, during our work we met with our advisors and another researcher and talked about different ways that an attacker can evade our ensemble machine. We built an algorithm that instead of always choosing the first page for our two first machines, chooses a random pages of the file for that. 
 
 \indent We have compared our results to two researches that have two different approaches, each focusing on one area of interest of the PDF file. We have indicated what has to be improved in our project and dataset in order to reach more realistic results. The improvements include adding malicious samples to our dataset, and creating a recommended proportion between the malicious and benign files in the dataset as can be seen in \cite{BGU2014malicious}.
 
@@ -1299,12 +1295,12 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 
 \subsection{Phase 3 Improvements }
 \subsubsection{Extraction of text to work for more languages}
-\indent In our project the extraction of text from image works only for Latin and Cyrillic characters. That means that if there is another language and we have to extract the text from image, the text machine won't work. Furthermore, if the text is directly extracted from the file or from the image of the file is not in English, it will be needed to write a machine suitable for that language (the machine we built works only on English text).
+\indent In our project the extraction of text from image works only for Latin and Cyrillic characters. That means that if there is another language and we have to extract the text from the image, the text machine won't work. Furthermore, if the text is directly extracted from the file or from the image of the file, and is not in English, it will be needed to write a machine suitable for that language (the machine we built works only on English text).
 
 \subsubsection{Improving text vector}
-\indent During our work we considered trying another approach of creating the text vector using ‘Word2vec’ with cosine similarity. Due to time limitations we did not get to it.
+\indent During our work we considered trying another approach of creating the text vector using ‘Word2vec’ with cosine similarity. Due to time limitations we did not get to do it.
 
-\indent Moreover, we used a slim dictionary due to memory limitations, but there are many advanced dictionaries that also include relations between words that can be used and may improve results.
+\indent Moreover, we used a slim dictionary due to memory limitations, but there are many advanced dictionaries that also include relations between words and phrases that can be used and may improve results.
 
 \subsection{Phase 4 Improvements} 
 \subsubsection{Feature selection improvement}
@@ -1316,7 +1312,7 @@ Note that 949 samples are shown in the table (10\% of samples that were used for
 
 \indent Another idea is adding the approach that uses N-Grams in order to distinguish between benign and malicious PDF files. This can be seen in \cite{Joachims1999Thorsten}.
 
-\indent Lastly, another idea is creating a list of all possible features, and choosing randomly from it repeatedly until we find the list that yields us the best classification.
+\indent Lastly, we could create a list of all possible features, and choose randomly from it repeatedly until we find the list that yields us the best classification.
 
 \subsection{Phase 5 Improvements}
 \subsubsection{Additional methods}
